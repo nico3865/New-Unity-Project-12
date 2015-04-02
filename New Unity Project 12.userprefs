@@ -1,13 +1,14 @@
 ﻿<Properties>
-  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
+  <MonoDevelop.Ide.Workspace />
   <MonoDevelop.Ide.Workbench ActiveDocument="Assets/scripts/GameManager.cs">
     <Files>
-      <File FileName="Assets/scripts/GameManager.cs" Line="316" Column="33" />
+      <File FileName="Assets/scripts/GameManager.cs" Line="42" Column="23" />
+      <File FileName="Assets/scripts/Tile.cs" Line="11" Column="31" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.Breakpoints>
     <BreakpointStore>
-      <Breakpoint file="/Users/nick/Downloads/New Unity Project 12/Assets/scripts/GameManager.cs" line="317" />
+      <Breakpoint file="/Users/nick/Downloads/New Unity Project 12/Assets/scripts/GameManager.cs" line="313" />
     </BreakpointStore>
   </MonoDevelop.Ide.DebuggingService.Breakpoints>
   <MonoDevelop.Ide.DebuggingService.PinnedWatches />

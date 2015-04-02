@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System;
 
 public class GameManager : MonoBehaviour {
 
@@ -24,7 +25,7 @@ public class GameManager : MonoBehaviour {
 	List <Tile> token = new List <Tile>();
 	List <List<Tile>> field = new List <List<Tile>>();
 	List <Tile> searchList = new List <Tile>();
-	int depth = 110; //32;
+	int depth = 1;//110; //32;
 	int recursions = -1;
 	byte average;
 	int indexX;
@@ -85,8 +86,11 @@ public class GameManager : MonoBehaviour {
 			sw.Start();
 			Vector2 position2D;
 			//Depth 9
-			Tile tile = recursion(AIPlayer1st(), depth);
+			// create a copy of the board, that will be used by minimax, to recurse on:
+			Tile tile = recursion(depth, true, Int32.MinValue, Int32.MaxValue);//(AIPlayer1st(), depth, true, Int32.MinValue, Int32.MaxValue);
 			tile.decidedToUse = true;
+			tile.used = true; // added trying fix bug
+			tile.usedForEvaluation = true; // added trying fix bug
 			print ("score: " + tile.score);
 			resetEvaluatedTiles();
 			determineTileTheList(tile);
@@ -150,54 +154,192 @@ public class GameManager : MonoBehaviour {
 		}
 	}
 
-	Tile recursion(Tile tile, int downTheTree){
+
+
+
+	
+//	Dictionary<string, string> d = new Dictionary<string, string>();
+//	
+//	d.Add("A", "AA");
+//	Console.WriteLine(d["A"]); // result: "AA"
+//	
+//	
+//	// d.Add("A", "BB");
+//	// The above is not allowed: Trigger runtime Exception
+//	// The key "A" has been added already.
+//	
+//	
+//	d["A"] = "BB";
+//	Console.WriteLine(m["A"]); // result: "BB"
+
+
+	// returns the score for a tree branch:
+	Tile recursion(int downTheTree, bool isAIsturn, int alpha, int beta){ //Dictionary<string, Object> 
 		bool youCanGo = false;
 
 		// ADD Nicolas, trying to fix black playing illegal moves
 		// this is so that we don't consider illegal moves in the new if statement below.
 		// just ignoring used tile isn't sufficient, we must also ignore illegal moves.
-		if(tile.max == false) {
-			turn = true;
-		} else {
-			turn = false;
+//		if(tile.max == false) {
+//			turn = true;
+//		} else {
+//			turn = false;
+//		}
+
+
+
+
+//		int maxScoreForThisTreeLevel = -10000;
+//		int minScoreForThisTreeLevel = 10000;
+		int score = -1;
+		Tile bestTileToPlayAtThisDepth = new Tile (); 
+
+		if(downTheTree <= 0) {
+			if(isAIsturn) {
+				bestTileToPlayAtThisDepth = AIPlayerMax(isAIsturn);
+				if(isLegalMINIMAX(bestTileToPlayAtThisDepth.)) {
+					return bestTileToPlayAtThisDepth;
+				}
+			} else {
+				bestTileToPlayAtThisDepth = AIPlayerMin(isAIsturn);
+				return bestTileToPlayAtThisDepth;
+
+			}
 		}
 
 		for(int i = 0; i < mapSize; i++){
 			for(int j = 0; j < mapSize; j++){
 //				if(field[i][j].used == true){
-				if(!isLegal(i, j)) { // ADD Nicolas, trying to fix black playing illegal moves!
+				if(!isLegalMINIMAX(i, j, isAIsturn)) { // ADD Nicolas, trying to fix black playing illegal moves!
 					continue;
 				}
 				else{
 					youCanGo = true;
+
+					// "play that tile" and call recursion again:
+
+
+
+
+//					if(tile.max && youCanGo){
+//						downTheTree--;
+//						//tile = AIPlayerMin(tile);
+//						return recursion(tile, downTheTree, !isAIsturn);
+//					}
+//					else if(tile.min && youCanGo){
+//						downTheTree--;
+//						recursions++;
+//						//tile = AIPlayerMax(tile);
+//						return recursion(tile, downTheTree, !isAIsturn);
+//					}
+
+
+
+//					if(downTheTree <= 0 && youCanGo){ // base case? i.e. reached allowed depth for minimax:
+//						//return tile;
+//
+//						// evaluate all leaf nodes, ie all tiles possible to play at this level: and retain the best move or most likely move for opponent:
+//						if(isAIsturn && youCanGo) {
+//							return AIPlayerMax(); // but I need to set what tiles are used for evaluation before calling this.
+//
+//						} else {
+//							return AIPlayerMin(); // but I need to set what tiles are used for evaluation before calling this.
+//						}
+//					} else {
+//						downTheTree--;
+//						field[i][j].usedForEvaluation = true;
+//						//tile = AIPlayerMin(tile);
+//						Tile bestTileToPlay = recursion(tile, downTheTree, !isAIsturn);
+//
+//						return bestTileToPlay;
+//					}
+
+					// base case? i.e. reached allowed depth for minimax: then find out max for all possible moves on board:
+//					if(downTheTree <= 0 && youCanGo) {
+//						if(isAIsturn) {
+//
+//							if(maxScoreForThisTreeLevel < ) {
+//								maxScoreForThisTreeLevel = ;
+//							}
+//						} else {
+//
+//						}
+//					} else {
+//						downTheTree--;
+//						field[i][j].usedForEvaluation = true;
+//						Tile bestTileToPlay = recursion(tile, downTheTree, !isAIsturn); // this will consider a board where the current tile has been played.
+//						field[i][j].usedForEvaluation = false; // but for the calling code,
+//						downTheTree++;
+//						return bestTileToPlay;
+//					}
+
+					// -----------------------------------------------------------
+					// try this move for the current "player"
+					field[i][j].usedForEvaluation = true;//cells[move[0]][move[1]].content = player;
+					field[i][j].used = true;
+					if (!isAIsturn) {  // mySeed (computer) is maximizing player
+						Tile miniMaxsPick = recursion(downTheTree - 1, !isAIsturn, alpha, beta);//[0];
+						if (score > alpha) {
+							alpha = miniMaxsPick.score;
+//							bestRow = move[0];
+//							bestCol = move[1];
+							bestTileToPlayAtThisDepth = field[i][j];
+						}
+					} else {  // oppSeed is minimizing player
+						Tile miniMaxsPick = recursion(downTheTree - 1, !isAIsturn, alpha, beta);
+						if (score < beta) {
+							beta = miniMaxsPick.score;
+//							bestRow = move[0];
+//							bestCol = move[1];
+							bestTileToPlayAtThisDepth = field[i][j];
+						}
+					}
+					// undo move
+					field[i][j].usedForEvaluation = false;//cells[move[0]][move[1]].content = Seed.EMPTY;
+					field[i][j].used = false;
+					// cut-off
+					if (alpha >= beta) 
+						goto endOfLoop;//break; from the 2 loops, not just one.
+
+
+
 				}
 			}
 		}
+		endOfLoop:
+		
+
+		// the return the max score and corresponding tile to play:
 
 		// ADD Nicolas to fix black playing illegal moves:
 		// reset turn to AI's turn, (since we've been playing with it to use the isLegal() function during minimax, so the turn was artificially changed, temporarily for the sake of the minimax algorithm)
-		turn = true;
-
+		//turn = true;
 
 		if(youCanGo == false){
 			print("All have been evaluated -- there are no possible moves for branches under this minimax tree node.");
-		}
-		if(downTheTree <= 0 && youCanGo){
-			return tile;
-		}
-		if(tile.max && youCanGo){
-			downTheTree--;
-			tile = AIPlayerMin(tile);
-			return recursion(tile, downTheTree);
-		}
-		else if(tile.min && youCanGo){
-			downTheTree--;
-			recursions++;
-			tile = AIPlayerMax(tile);
-			return recursion(tile, downTheTree);
+			return null;
 		}
 
-		return tile;
+		//return tile;
+		return bestTileToPlayAtThisDepth; //new int[] {(player == mySeed) ? alpha : beta, bestRow, bestCol};
+
+
+		// =========== TODO: 
+
+		// pick the first legal move, any of them.
+		//		is legal must take a board, pass a board as argument., no just use tile.usedForEvaluation
+		//		when I pick a move, modify the board and pass that.
+		// then call recursion on it. decrement the depth.
+		//		recursion also must take a board are param.
+		// 		.... recursion then picks a legal move and calls itself again.
+		//			.... UNTIL you reach a leaf node. (depth == depth)
+		//			.... or until you 
+		//				then you pick the max or min for that depth.
+		//				// alpha-b pruning: check that
+		//		recursion must stop at the desired depth.
+		// 		recursion must simply give a score to each node.
+
+
 	}
 
 	void generateField(){
@@ -377,60 +519,100 @@ public class GameManager : MonoBehaviour {
 		return true;
 	}
 
-
-	//For Deliverable 2 and 3, Min player options, selects the lowest score
-	Tile AIPlayer1st(){
-		Tile tile = findANotUsedTile();
-		Tile scd = findANotUsedTile();
-		resetScores();
-		for(int i = 0; i < mapSize - 1; i++){
-			for(int j = 0; j < mapSize; j++){
-				if(isLegal (i,j) && !tile.used && !field[i][j].used  &&
-				   field[i+1][j].used == false && field[i+1][j].usedForEvaluation == false){
-					determineTileScore(i,j);
-					if(field[i][j].score < tile.score){
-						tile = field[i][j];
-						scd = field[i+1][j];
-					}
-				}
+	//Checks if a move is legal
+	bool isLegalMINIMAX(int i, int j, bool isAIsturn){
+		// print ("i -> "+i+", j -> "+j);
+		// j is rows, (0 is bottom of board).
+		// i is columns, (0 is left of board).
+		// black needs "tile to its right" to be free.
+		// white needs "tile below itself" to be free.
+		// isAIsturn or turn == true --> AI's turn to play (black).
+		// !turn == true --> human's turn to play (white).
+		if(field[i][j].usedForEvaluation || field[i][j].used){
+			checkIlligalMessage(1);
+			return false;
+		}
+		else if((j - 1 < 0) && isAIsturn){
+			checkIlligalMessage(2);
+			return false;
+		}
+		else if((i + 1 >= mapSize) && !isAIsturn){
+			checkIlligalMessage(3);
+			return false;
+		}
+		else if((i + 1 < mapSize) && !isAIsturn){
+			if(field[i+1][j].usedForEvaluation || field[i+1][j].used){
+				checkIlligalMessage(1);
+				return false;
 			}
 		}
-		tile.min = true;
-		tile.used = true;
-		searchList.Add (tile);
-		scd.min = true;
-		scd.used = true;
-		searchList.Add (scd);
-		if(tile.usedForEvaluation){
-			print ("1st tile already used");
+		else if((j - 1 >= 0) && isAIsturn){ 
+			if(field[i][j-1].usedForEvaluation || field[i][j-1].used){
+				checkIlligalMessage(1);
+				return false;
+			}
 		}
-		else{
-			tile.usedForEvaluation = true;
-			scd.usedForEvaluation = true;
-		}
-		return tile;
+		checkIlligalMessage(0);
+		return true;
 	}
 
-	Tile findANotUsedTile(){
+
+
+//	//For Deliverable 2 and 3, Min player options, selects the lowest score
+//	Tile AIPlayer1st(){
+//		Tile tile = findANotUsedTile();
+//		Tile scd = findANotUsedTile();
+//		resetScores();
+//		for(int i = 0; i < mapSize - 1; i++){
+//			for(int j = 0; j < mapSize; j++){
+//				if(isLegal (i,j) && !tile.used && !field[i][j].used  &&
+//				   field[i+1][j].used == false && field[i+1][j].usedForEvaluation == false){
+//					determineTileScore(i,j);
+//					if(field[i][j].score < tile.score){
+//						tile = field[i][j];
+//						scd = field[i+1][j];
+//					}
+//				}
+//			}
+//		}
+//		tile.min = true;
+//		tile.used = true;
+//		searchList.Add (tile);
+//		scd.min = true;
+//		scd.used = true;
+//		searchList.Add (scd);
+//		if(tile.usedForEvaluation){
+//			print ("1st tile already used");
+//		}
+//		else{
+//			tile.usedForEvaluation = true;
+//			scd.usedForEvaluation = true;
+//		}
+//		return tile;
+//	}
+
+	Tile findANotUsedTile(bool isAIsturn){
 
 		// ADD Nicolas, trying to fix black playing illegal moves
 		// this is so that we don't consider illegal moves in the new if statement below.
 		// just ignoring used tile isn't sufficient, we must also ignore illegal moves.
-		turn = true;
+		//turn = true;
 		
 		for(int i = 0; i < mapSize; i++){
 			for(int j = 0; j < mapSize; j++){
 				//				if(field[i][j].used == true){
-				if(isLegal(i, j)) { // ADD Nicolas, trying to fix black playing illegal moves!
+				if(isLegalMINIMAX(i, j, isAIsturn)) { // ADD Nicolas, trying to fix black playing illegal moves!
 					print("Found One Empty Tile for this tree node");
-					return field[i][j];				
+					field[i][j].i = i;
+					field[i][j].j = j;
+					return field[i][j];			
 				}
 			}
 		}
 		
 		// ADD Nicolas to fix black playing illegal moves:
 		// reset turn to AI's turn, (since we've been playing with it to use the isLegal() function during minimax, so the turn was artificially changed, temporarily for the sake of the minimax algorithm)
-		turn = true;
+		//turn = true;
 
 //		for(int i = 0; i < mapSize; i++){
 //			for(int j = 0; j < mapSize; j++){
@@ -443,16 +625,18 @@ public class GameManager : MonoBehaviour {
 		return field[0][0];
 	}
 
-	Tile AIPlayerMin(Tile tile){
-		Tile scd = findANotUsedTile();
+	Tile AIPlayerMin(bool isAIsturn) { //(Tile tile){
+		Tile tile =  findANotUsedTile (isAIsturn);//new Tile();
+		Tile scd = findANotUsedTile(isAIsturn);
 		for(int i = 0; i < mapSize - 1; i++){
 			for(int j = 0; j < mapSize; j++){
 				if(field[i][j].used == false && field[i][j].usedForEvaluation == false &&
 				   field[i+1][j].used == false && field[i+1][j].usedForEvaluation == false){ // isn't this huge is statement redundant with isLegal() ?
 
 					//
-					turn = false;
-					if(isLegal (i,j)){
+					//turn = false;
+					isAIsturn = false;
+					if(isLegalMINIMAX (i,j, isAIsturn)){
 						determineTileScore(i,j);
 						if(field[i][j].score < tile.score && !token.Contains(tile)){
 							tile = field[i][j];
@@ -460,7 +644,7 @@ public class GameManager : MonoBehaviour {
 						}
 					}
 					//
-					turn = true;
+					//turn = true;
 				}
 			}
 		}
@@ -481,16 +665,18 @@ public class GameManager : MonoBehaviour {
 	}
 
 	//For Deliverable 2 and 3, Min player options, selects the highest score
-	Tile AIPlayerMax(Tile tile){
-		Tile scd = findANotUsedTile();
+	Tile AIPlayerMax(bool isAIsturn) { //(Tile tile){
+		Tile tile = findANotUsedTile (isAIsturn);//new Tile();
+		Tile scd = findANotUsedTile(isAIsturn);
 		for(int i = 0; i < mapSize; i++){
 			for(int j = 1; j < mapSize; j++){
 				if(field[i][j].used == false && field[i][j].usedForEvaluation == false &&
 				   field[i][j-1].used == false && field[i][j-1].usedForEvaluation == false){
 
 					//
-					turn = true;
-					if(isLegal (i,j)){
+					//turn = true;
+					isAIsturn = true;
+					if(isLegalMINIMAX (i,j, isAIsturn)){
 						determineTileScore(i,j);
 						if(field[i][j].score > tile.score && !token.Contains(tile)){
 							tile = field[i][j];
@@ -498,7 +684,7 @@ public class GameManager : MonoBehaviour {
 						}
 					}
 					//
-					turn = true;
+					//turn = true;
 				}
 			}
 		}

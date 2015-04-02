@@ -4,6 +4,10 @@ using System.Collections.Generic;
 
 public class Tile : MonoBehaviour {
 
+	// let the tile be aware of its position on the grid: field[i][j]
+	public int i;
+	public int j;
+
 	public Vector2 gridPosition = new Vector2 (2,2);
 	public Vector3 position;
 	public GameObject textMesh;
