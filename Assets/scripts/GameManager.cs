@@ -31,10 +31,56 @@ public class GameManager : MonoBehaviour {
 	int indexX;
 	int indexY;
 	int valueOfUsed;	
+	bool AIPLAYSFIRST;
+
+
+
 	// Use this for initialization
 	void Start () {
 		//Creates the field of play (changing mapSize to 6 will give you a 6x6 map)
 		generateField();
+
+		// to let AI play 
+		AIPLAYSFIRST = false; // false is like it used to be.
+		if(AIPLAYSFIRST) {
+			sw.Start();
+			Vector2 position2D;
+			//Depth 9
+			// create a copy of the board, that will be used by minimax, to recurse on:
+			//Tile tile = recursion(depth, true, Int32.MinValue, Int32.MaxValue);//(AIPlayer1st(), depth, true, Int32.MinValue, Int32.MaxValue);
+			bool isAIsturn = true;
+			Tile tile = AIPlayerMax(isAIsturn);
+			tile.decidedToUse = true;
+			tile.used = true; // added trying fix bug
+			tile.usedForEvaluation = true; // added trying fix bug
+			print ("score: " + tile.score);
+			resetEvaluatedTiles();
+			determineTileTheList(tile);
+			if(tile.black || tile.white){
+				checkIlligalMessage(1);
+				isTurn();
+				played = false;
+				print ("Did i switch");
+			}
+			else if(isLegal(indexX,indexY)){
+				position2D = tile.gridPosition;
+				print (position2D);
+				Vector3 position = new Vector3(position2D.x, 0, position2D.y);
+				placeToken(position);
+				played = false;
+			}
+			else{
+				// NB this else should never happen (now that AI playing illegal moves is fixed), 
+				// else we're disqualified, 
+				// i.e. our AI lost automatically from providing an illegal position --> exit gracefully:
+				isTurn ();
+				played = false;
+			}
+			sw.Stop();
+			print(sw.Elapsed + " ms");
+			sw.Reset();
+
+		}
 	}
 
 	// Update is called once per frame
@@ -186,7 +232,8 @@ public class GameManager : MonoBehaviour {
 //			turn = false;
 //		}
 
-
+		//debug:
+		print ("downTheTree: "+downTheTree);
 
 
 //		int maxScoreForThisTreeLevel = -10000;
@@ -197,12 +244,30 @@ public class GameManager : MonoBehaviour {
 		if(downTheTree <= 0) {
 			if(isAIsturn) {
 				bestTileToPlayAtThisDepth = AIPlayerMax(isAIsturn);
-				if(isLegalMINIMAX(bestTileToPlayAtThisDepth.)) {
+				// debug:
+				if(bestTileToPlayAtThisDepth == null) {
+					print ("bestTileToPlayAtThisDepth is NULL. There are no more possible moves at this level");
+					return null;
+				}
+				if(isLegalMINIMAX(bestTileToPlayAtThisDepth.i, bestTileToPlayAtThisDepth.j, isAIsturn)) {
+					return bestTileToPlayAtThisDepth;
+				} else {
+					print ("BREAKPOINT, BEST MOVE IS ILLEGAL");
 					return bestTileToPlayAtThisDepth;
 				}
 			} else {
 				bestTileToPlayAtThisDepth = AIPlayerMin(isAIsturn);
-				return bestTileToPlayAtThisDepth;
+				// debug:
+				if(bestTileToPlayAtThisDepth == null) {
+					print ("bestTileToPlayAtThisDepth is NULL. There are no more possible moves at this level");
+					return null;
+				}
+				if(isLegalMINIMAX(bestTileToPlayAtThisDepth.i, bestTileToPlayAtThisDepth.j, isAIsturn)) {
+					return bestTileToPlayAtThisDepth;
+				} else {
+					print ("BREAKPOINT, BEST MOVE IS ILLEGAL: "+ "i: " +bestTileToPlayAtThisDepth.i + ", j: " + bestTileToPlayAtThisDepth.j);
+					return bestTileToPlayAtThisDepth;
+				}
 
 			}
 		}
@@ -276,10 +341,13 @@ public class GameManager : MonoBehaviour {
 					// -----------------------------------------------------------
 					// try this move for the current "player"
 					field[i][j].usedForEvaluation = true;//cells[move[0]][move[1]].content = player;
-					field[i][j].used = true;
+					//field[i][j].used = true;
 					if (!isAIsturn) {  // mySeed (computer) is maximizing player
 						Tile miniMaxsPick = recursion(downTheTree - 1, !isAIsturn, alpha, beta);//[0];
-						if (score > alpha) {
+						if(miniMaxsPick == null) {
+							// do nothing
+						}
+						else if (miniMaxsPick.score > alpha) {
 							alpha = miniMaxsPick.score;
 //							bestRow = move[0];
 //							bestCol = move[1];
@@ -287,7 +355,10 @@ public class GameManager : MonoBehaviour {
 						}
 					} else {  // oppSeed is minimizing player
 						Tile miniMaxsPick = recursion(downTheTree - 1, !isAIsturn, alpha, beta);
-						if (score < beta) {
+						if(miniMaxsPick == null) {
+							// do nothing
+						}
+						else if (miniMaxsPick.score < beta) {
 							beta = miniMaxsPick.score;
 //							bestRow = move[0];
 //							bestCol = move[1];
@@ -296,10 +367,12 @@ public class GameManager : MonoBehaviour {
 					}
 					// undo move
 					field[i][j].usedForEvaluation = false;//cells[move[0]][move[1]].content = Seed.EMPTY;
-					field[i][j].used = false;
+					//field[i][j].used = false;
 					// cut-off
-					if (alpha >= beta) 
+					if (alpha >= beta) {
+						print ("ALPHA BETA PRUNED.");
 						goto endOfLoop;//break; from the 2 loops, not just one.
+					}
 
 
 
@@ -519,8 +592,23 @@ public class GameManager : MonoBehaviour {
 		return true;
 	}
 
+	void printField() {
+		string rowString = "";
+		for(int i = 0; i < mapSize; i++){
+			rowString = "";
+			for(int j = 0; j < mapSize; j++){
+				rowString += field[i][j].used+"-"+field[i][j].usedForEvaluation + "/";
+			}
+			print ("row"+i+" --> "+ rowString);
+		}
+	}
+
 	//Checks if a move is legal
 	bool isLegalMINIMAX(int i, int j, bool isAIsturn){
+
+		//debug:
+		//printField ();
+
 		// print ("i -> "+i+", j -> "+j);
 		// j is rows, (0 is bottom of board).
 		// i is columns, (0 is left of board).
@@ -528,25 +616,28 @@ public class GameManager : MonoBehaviour {
 		// white needs "tile below itself" to be free.
 		// isAIsturn or turn == true --> AI's turn to play (black).
 		// !turn == true --> human's turn to play (white).
+		bool f = field[i][j].usedForEvaluation;
 		if(field[i][j].usedForEvaluation || field[i][j].used){
 			checkIlligalMessage(1);
 			return false;
 		}
-		else if((j - 1 < 0) && isAIsturn){
+		else if((j - 1 < 0) && !isAIsturn){
 			checkIlligalMessage(2);
 			return false;
 		}
-		else if((i + 1 >= mapSize) && !isAIsturn){
+		else if((i + 1 >= mapSize) && isAIsturn){
 			checkIlligalMessage(3);
 			return false;
 		}
-		else if((i + 1 < mapSize) && !isAIsturn){
+		else if((i + 1 < mapSize) && isAIsturn){
+			bool x = field[i+1][j].usedForEvaluation;
+			bool y = field[i+1][j].used;
 			if(field[i+1][j].usedForEvaluation || field[i+1][j].used){
 				checkIlligalMessage(1);
 				return false;
 			}
 		}
-		else if((j - 1 >= 0) && isAIsturn){ 
+		else if((j - 1 >= 0) && !isAIsturn){ 
 			if(field[i][j-1].usedForEvaluation || field[i][j-1].used){
 				checkIlligalMessage(1);
 				return false;
@@ -601,8 +692,12 @@ public class GameManager : MonoBehaviour {
 		for(int i = 0; i < mapSize; i++){
 			for(int j = 0; j < mapSize; j++){
 				//				if(field[i][j].used == true){
+
+				field[i][j].i = i;
+				field[i][j].j = j;
+
 				if(isLegalMINIMAX(i, j, isAIsturn)) { // ADD Nicolas, trying to fix black playing illegal moves!
-					print("Found One Empty Tile for this tree node");
+					print("Found One Empty Tile for this tree node: "+"i = "+i+", j = "+j);
 					field[i][j].i = i;
 					field[i][j].j = j;
 					return field[i][j];			
@@ -622,16 +717,43 @@ public class GameManager : MonoBehaviour {
 //				}
 //			}
 //		}
-		return field[0][0];
+		//return field[0][0];
+		return null; // should almost never reach here! except toward the end of the game.
+	}
+
+	void resetUsedFOREVALUATION() {
+
 	}
 
 	Tile AIPlayerMin(bool isAIsturn) { //(Tile tile){
-		Tile tile =  findANotUsedTile (isAIsturn);//new Tile();
+
+		Tile tile =  findANotUsedTile(isAIsturn);//new Tile();
+		//debug:
+		if(tile == null) {
+			print ("TILE RETURNED BY findANotUsedTile IS NULL !!!!!!!!!!!!!!!!!!!!!!!!!!!!! ");
+			return null;
+		}
+		if(isLegalMINIMAX(tile.i, tile.j, isAIsturn)) {
+			//return tile;
+		} else {
+			print ("BREAKPOINT: AI returns an illegal move!");
+		}
+
 		Tile scd = findANotUsedTile(isAIsturn);
+		if(isLegalMINIMAX(tile.i, tile.j, isAIsturn)) {
+			//return tile;
+		} else {
+			print ("BREAKPOINT: AI returns an illegal move!");
+		}
+
 		for(int i = 0; i < mapSize - 1; i++){
 			for(int j = 0; j < mapSize; j++){
+
+				field[i][j].i = i;//debug
+				field[i][j].j = j;
+
 				if(field[i][j].used == false && field[i][j].usedForEvaluation == false &&
-				   field[i+1][j].used == false && field[i+1][j].usedForEvaluation == false){ // isn't this huge is statement redundant with isLegal() ?
+				   field[i+1][j].used == false && field[i+1][j].usedForEvaluation == false){ // isn't this if statement redundant with isLegal() ?
 
 					//
 					//turn = false;
@@ -649,27 +771,55 @@ public class GameManager : MonoBehaviour {
 			}
 		}
 		tile.min = true;
-		tile.used = true;
+		//tile.used = true;
 		searchList.Add (tile);
 		scd.min = true;
-		scd.used = true;
+		//scd.used = true;
 		searchList.Add (scd);
 		if(tile.usedForEvaluation){
 			print ("Min already used");
 		}
 		else{
-			tile.usedForEvaluation = true;
-			scd.usedForEvaluation = true;
+			//tile.usedForEvaluation = true;
+			//scd.usedForEvaluation = true;
 		}
-		return tile;
+
+		if(isLegalMINIMAX(tile.i, tile.j, isAIsturn)) {
+			return tile;
+		} else {
+			print ("BREAKPOINT: AI returns an illegal move!");
+			return tile;
+		}	
 	}
 
 	//For Deliverable 2 and 3, Min player options, selects the highest score
 	Tile AIPlayerMax(bool isAIsturn) { //(Tile tile){
-		Tile tile = findANotUsedTile (isAIsturn);//new Tile();
+
+		Tile tile =  findANotUsedTile(isAIsturn);//new Tile();
+		//debug:
+		if(tile == null) {
+			print ("TILE RETURNED BY findANotUsedTile IS NULL !!!!!!!!!!!!!!!!!!!!!!!!!!!!! ");
+			return null;
+		}
+		if(isLegalMINIMAX(tile.i, tile.j, isAIsturn)) {
+			//return tile;
+		} else {
+			print ("BREAKPOINT: AI returns an illegal move!");
+		}
+		
 		Tile scd = findANotUsedTile(isAIsturn);
+		if(isLegalMINIMAX(tile.i, tile.j, isAIsturn)) {
+			//return tile;
+		} else {
+			print ("BREAKPOINT: AI returns an illegal move!");
+		}
+
 		for(int i = 0; i < mapSize; i++){
 			for(int j = 1; j < mapSize; j++){
+
+				field[i][j].i = i;//debug
+				field[i][j].j = j;
+
 				if(field[i][j].used == false && field[i][j].usedForEvaluation == false &&
 				   field[i][j-1].used == false && field[i][j-1].usedForEvaluation == false){
 
@@ -689,19 +839,26 @@ public class GameManager : MonoBehaviour {
 			}
 		}
 		tile.min = true;
-		tile.used = true;
+		//tile.used = true;
 		searchList.Add (tile);
 		scd.min = true;
-		scd.used = true;
+		//scd.used = true;
 		searchList.Add (scd);
 		if(tile.usedForEvaluation){
-			print ("Max already used");
+			print ("BREAKPOINT Max already used !!!!!!!! ");
 		}
 		else{
-			tile.usedForEvaluation = true;
-			scd.usedForEvaluation = true;
+			//tile.usedForEvaluation = true;
+			//scd.usedForEvaluation = true;
 		}
-		return tile;
+
+		if(isLegalMINIMAX(tile.i, tile.j, isAIsturn)) {
+			return tile;
+		} else {
+			print ("BREAKPOINT: AI returns an illegal move!");
+			return tile;
+		}
+
 	}
 
 	void determineTileTheList(Tile tile){
