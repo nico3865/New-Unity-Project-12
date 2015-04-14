@@ -25,7 +25,7 @@ public class GameManager : MonoBehaviour {
 	List <Tile> token = new List <Tile>();
 	List <List<Tile>> field = new List <List<Tile>>();
 	List <Tile> searchList = new List <Tile>();
-	int depth = 1;//110; //32;
+	int depth = 2; // depth 3 exceeds 3 seconds; //110; //32;
 	int recursions = -1;
 	byte average;
 	int indexX;
@@ -203,20 +203,6 @@ public class GameManager : MonoBehaviour {
 
 
 
-	
-//	Dictionary<string, string> d = new Dictionary<string, string>();
-//	
-//	d.Add("A", "AA");
-//	Console.WriteLine(d["A"]); // result: "AA"
-//	
-//	
-//	// d.Add("A", "BB");
-//	// The above is not allowed: Trigger runtime Exception
-//	// The key "A" has been added already.
-//	
-//	
-//	d["A"] = "BB";
-//	Console.WriteLine(m["A"]); // result: "BB"
 
 
 	// returns the score for a tree branch:
@@ -275,68 +261,13 @@ public class GameManager : MonoBehaviour {
 		for(int i = 0; i < mapSize; i++){
 			for(int j = 0; j < mapSize; j++){
 //				if(field[i][j].used == true){
-				if(!isLegalMINIMAX(i, j, isAIsturn)) { // ADD Nicolas, trying to fix black playing illegal moves!
+				if(!isLegalMINIMAX(i, j, isAIsturn)) { // ADD Nicolas, to fix black playing illegal moves!
 					continue;
 				}
 				else{
 					youCanGo = true;
 
 					// "play that tile" and call recursion again:
-
-
-
-
-//					if(tile.max && youCanGo){
-//						downTheTree--;
-//						//tile = AIPlayerMin(tile);
-//						return recursion(tile, downTheTree, !isAIsturn);
-//					}
-//					else if(tile.min && youCanGo){
-//						downTheTree--;
-//						recursions++;
-//						//tile = AIPlayerMax(tile);
-//						return recursion(tile, downTheTree, !isAIsturn);
-//					}
-
-
-
-//					if(downTheTree <= 0 && youCanGo){ // base case? i.e. reached allowed depth for minimax:
-//						//return tile;
-//
-//						// evaluate all leaf nodes, ie all tiles possible to play at this level: and retain the best move or most likely move for opponent:
-//						if(isAIsturn && youCanGo) {
-//							return AIPlayerMax(); // but I need to set what tiles are used for evaluation before calling this.
-//
-//						} else {
-//							return AIPlayerMin(); // but I need to set what tiles are used for evaluation before calling this.
-//						}
-//					} else {
-//						downTheTree--;
-//						field[i][j].usedForEvaluation = true;
-//						//tile = AIPlayerMin(tile);
-//						Tile bestTileToPlay = recursion(tile, downTheTree, !isAIsturn);
-//
-//						return bestTileToPlay;
-//					}
-
-					// base case? i.e. reached allowed depth for minimax: then find out max for all possible moves on board:
-//					if(downTheTree <= 0 && youCanGo) {
-//						if(isAIsturn) {
-//
-//							if(maxScoreForThisTreeLevel < ) {
-//								maxScoreForThisTreeLevel = ;
-//							}
-//						} else {
-//
-//						}
-//					} else {
-//						downTheTree--;
-//						field[i][j].usedForEvaluation = true;
-//						Tile bestTileToPlay = recursion(tile, downTheTree, !isAIsturn); // this will consider a board where the current tile has been played.
-//						field[i][j].usedForEvaluation = false; // but for the calling code,
-//						downTheTree++;
-//						return bestTileToPlay;
-//					}
 
 					// -----------------------------------------------------------
 					// try this move for the current "player"
@@ -349,8 +280,6 @@ public class GameManager : MonoBehaviour {
 						}
 						else if (miniMaxsPick.score > alpha) {
 							alpha = miniMaxsPick.score;
-//							bestRow = move[0];
-//							bestCol = move[1];
 							bestTileToPlayAtThisDepth = field[i][j];
 						}
 					} else {  // oppSeed is minimizing player
@@ -360,8 +289,6 @@ public class GameManager : MonoBehaviour {
 						}
 						else if (miniMaxsPick.score < beta) {
 							beta = miniMaxsPick.score;
-//							bestRow = move[0];
-//							bestCol = move[1];
 							bestTileToPlayAtThisDepth = field[i][j];
 						}
 					}
@@ -408,7 +335,7 @@ public class GameManager : MonoBehaviour {
 		//			.... UNTIL you reach a leaf node. (depth == depth)
 		//			.... or until you 
 		//				then you pick the max or min for that depth.
-		//				// alpha-b pruning: check that
+		//				// alpha-b pruning: check that score trumps alpha or beta depending on turn.
 		//		recursion must stop at the desired depth.
 		// 		recursion must simply give a score to each node.
 
@@ -647,41 +574,7 @@ public class GameManager : MonoBehaviour {
 		return true;
 	}
 
-
-
-//	//For Deliverable 2 and 3, Min player options, selects the lowest score
-//	Tile AIPlayer1st(){
-//		Tile tile = findANotUsedTile();
-//		Tile scd = findANotUsedTile();
-//		resetScores();
-//		for(int i = 0; i < mapSize - 1; i++){
-//			for(int j = 0; j < mapSize; j++){
-//				if(isLegal (i,j) && !tile.used && !field[i][j].used  &&
-//				   field[i+1][j].used == false && field[i+1][j].usedForEvaluation == false){
-//					determineTileScore(i,j);
-//					if(field[i][j].score < tile.score){
-//						tile = field[i][j];
-//						scd = field[i+1][j];
-//					}
-//				}
-//			}
-//		}
-//		tile.min = true;
-//		tile.used = true;
-//		searchList.Add (tile);
-//		scd.min = true;
-//		scd.used = true;
-//		searchList.Add (scd);
-//		if(tile.usedForEvaluation){
-//			print ("1st tile already used");
-//		}
-//		else{
-//			tile.usedForEvaluation = true;
-//			scd.usedForEvaluation = true;
-//		}
-//		return tile;
-//	}
-
+	
 	Tile findANotUsedTile(bool isAIsturn){
 
 		// ADD Nicolas, trying to fix black playing illegal moves
