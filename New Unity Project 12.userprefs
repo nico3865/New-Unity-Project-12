@@ -2,26 +2,26 @@
   <MonoDevelop.Ide.Workspace />
   <MonoDevelop.Ide.Workbench ActiveDocument="Assets/scripts/GameManager.cs">
     <Files>
-      <File FileName="Assets/scripts/GameManager.cs" Line="18" Column="33" />
+      <File FileName="Assets/scripts/GameManager.cs" Line="6" Column="1" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.Breakpoints>
     <BreakpointStore>
-      <Breakpoint file="/Users/nick/Downloads/New Unity Project 12/Assets/scripts/GameManager.cs" line="666" />
-      <Breakpoint file="/Users/nick/Downloads/New Unity Project 12/Assets/scripts/GameManager.cs" line="673" />
-      <Breakpoint file="/Users/nick/Downloads/New Unity Project 12/Assets/scripts/GameManager.cs" line="734" />
-      <Breakpoint file="/Users/nick/Downloads/New Unity Project 12/Assets/scripts/GameManager.cs" line="741" />
-      <Breakpoint file="/Users/nick/Downloads/New Unity Project 12/Assets/scripts/GameManager.cs" line="786" />
-      <Breakpoint file="/Users/nick/Downloads/New Unity Project 12/Assets/scripts/GameManager.cs" line="661" />
-      <Breakpoint file="/Users/nick/Downloads/New Unity Project 12/Assets/scripts/GameManager.cs" line="648" />
+      <Breakpoint file="/Users/nick/Downloads/New Unity Project 12/Assets/scripts/GameManager.cs" line="632" />
+      <Breakpoint file="/Users/nick/Downloads/New Unity Project 12/Assets/scripts/GameManager.cs" line="639" />
+      <Breakpoint file="/Users/nick/Downloads/New Unity Project 12/Assets/scripts/GameManager.cs" line="700" />
       <Breakpoint file="/Users/nick/Downloads/New Unity Project 12/Assets/scripts/GameManager.cs" line="707" />
+      <Breakpoint file="/Users/nick/Downloads/New Unity Project 12/Assets/scripts/GameManager.cs" line="752" />
+      <Breakpoint file="/Users/nick/Downloads/New Unity Project 12/Assets/scripts/GameManager.cs" line="627" />
+      <Breakpoint file="/Users/nick/Downloads/New Unity Project 12/Assets/scripts/GameManager.cs" line="614" />
+      <Breakpoint file="/Users/nick/Downloads/New Unity Project 12/Assets/scripts/GameManager.cs" line="673" />
       <Breakpoint file="/Users/nick/Downloads/New Unity Project 12/Assets/scripts/GameManager.cs" line="241" />
       <Breakpoint file="/Users/nick/Downloads/New Unity Project 12/Assets/scripts/GameManager.cs" line="309" />
       <Breakpoint file="/Users/nick/Downloads/New Unity Project 12/Assets/scripts/GameManager.cs" line="235" />
       <Breakpoint file="/Users/nick/Downloads/New Unity Project 12/Assets/scripts/GameManager.cs" line="324" />
       <Breakpoint file="/Users/nick/Downloads/New Unity Project 12/Assets/scripts/GameManager.cs" line="248" />
       <Breakpoint file="/Users/nick/Downloads/New Unity Project 12/Assets/scripts/GameManager.cs" line="160" />
-      <Breakpoint file="/Users/nick/Downloads/New Unity Project 12/Assets/scripts/GameManager.cs" line="775" />
+      <Breakpoint file="/Users/nick/Downloads/New Unity Project 12/Assets/scripts/GameManager.cs" line="741" />
       <Breakpoint file="/Users/nick/Downloads/New Unity Project 12/Assets/scripts/GameManager.cs" line="319" />
       <Breakpoint file="/Users/nick/Downloads/New Unity Project 12/Assets/scripts/GameManager.cs" line="546" />
     </BreakpointStore>
