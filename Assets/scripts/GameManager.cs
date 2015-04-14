@@ -25,7 +25,7 @@ public class GameManager : MonoBehaviour {
 	List <Tile> token = new List <Tile>();
 	List <List<Tile>> field = new List <List<Tile>>();
 	List <Tile> searchList = new List <Tile>();
-	int depth = 2; // depth 3 exceeds 3 seconds; //110; //32;
+	int depth = 2;
 	int recursions = -1;
 	byte average;
 	int indexX;
